@@ -1,0 +1,7 @@
+.autotest
+History.txt
+Manifest.txt
+README
+Rakefile
+lib/brm-jruby.rb
+test/test_brm-jruby.rb
