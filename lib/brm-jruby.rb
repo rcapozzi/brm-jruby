@@ -11,13 +11,8 @@ class BRMJRuby
 VERSION = '0.0.1'
 end
 
-ENV["PIN_HOME"] or abort "PIN_HOME not defined"
-
 require 'jruby'
 include Java
-
-require ENV["PIN_HOME"] + "/jars/pcm.jar"
-require ENV["PIN_HOME"] + "/jars/pcmext.jar"
 
 java_import "java.util.Properties"
 java_import "com.portal.pcm.FList"
@@ -84,6 +79,9 @@ class Java::ComPortalPcm::PortalContext
 		if String === opcode
 			opcode = Java::ComPortalPcm::PortalOp.const_get(opcode.upcase)
 		end
+		if Hash === flist
+			flist = FList.from_hash(flist)
+		end
 		self.opcode(opcode,flags,flist)
 	end
 end
@@ -97,6 +95,10 @@ class Java::ComPortalPcm::Poid
 				(db, poid_id0, type) = [1,ary[1],ary[0]]
 			else
 				(db, poid_id0, type) = [ary[0],ary[2],ary[1]]
+			end
+			if (db =~ /\./)
+				ary = db.split(".")
+				db = (ary[3].to_i) + (256*ary[2].to_i) + (256*256*ary[1].to_i) + (256*256*256*ary[0].to_i)
 			end
 			self.new(db.to_i, poid_id0.to_i, type)
 		end
@@ -129,6 +131,9 @@ class Java::ComPortalPcm::FList
 	def to_str
 		self.as_string
 	end
+	def to_s
+		self.as_string
+	end
 	
 	def to_hash
 		hash = {}
@@ -149,6 +154,9 @@ class Java::ComPortalPcm::FList
 				hash[key] = val.to_s
 			when PIN_FLDT_TSTAMP
 				hash[key] = (val.getTime() / 1000)
+			when PIN_FLDT_DECIMAL
+				#hash[key] = val.nil? ? "" : java.math.BigDecimal.new(val.to_string)
+				hash[key] = val.nil? ? "" : val.to_string
   		else
   			hash[key] = val
   		end
@@ -216,6 +224,7 @@ class Java::ComPortalPcm::FList
 					d = java.util.Date.new(v.to_i * 1000)
 					flist.set(field,d)
 				when PIN_FLDT_DECIMAL
+					v = "0" if v.is_a?(String) and v.size == 0
 					flist.set(field,java.math.BigDecimal.new(v))
 				when PIN_FLDT_ARRAY
 					# Two ways. Use SA and set OR setElement
@@ -236,6 +245,10 @@ class Java::ComPortalPcm::FList
     		end
 			end
 			flist
+		end
+		
+		def from_str(str)
+			create_from_string(str)
 		end
 
 		# Loads fields from the database.
