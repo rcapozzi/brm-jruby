@@ -1,14 +1,14 @@
-= brm-jruby
+# brm-jruby
 
-== DESCRIPTION:
+## DESCRIPTION:
 
 Wrappers to the Java pcm.jar
 
-== FEATURES/PROBLEMS:
+## FEATURES
 
 * Convert hash to an FList
 
-== SYNOPSIS:
+## SYNOPSIS
 
         hash = {
                         "PIN_FLD_POID"         => "0.0.0.1 /service/pcm_client -1 0", 
@@ -19,23 +19,26 @@ Wrappers to the Java pcm.jar
                 }
         flist = FList.from_hash(hash)
 
-== REQUIREMENTS:
+# REQUIREMENTS
+
+The following need to be on your classpath or JRuby's -I.
 
 * pcm.jar
+* pcmext.jar
 
-== INSTALL:
+## INSTALL:
 
 * sudo gem install flist
 
-== DEVELOPERS:
+## DEVELOPERS:
 
 After checking out the source, run:
 
-  $ rake newb
+  $ rake wtf
 
 This task will install any missing dependencies, run the tests/specs,
 and generate the RDoc.
 
-== LICENSE:
+## LICENSE
 
 All rights reserved by author.

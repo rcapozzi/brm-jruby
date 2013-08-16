@@ -12,6 +12,8 @@ VERSION = '0.0.1'
 end
 
 require 'jruby'
+require 'pcm'
+require 'pcmext'
 include Java
 
 java_import "java.util.Properties"
