@@ -62,13 +62,16 @@ end
 
 
 class Hash
-	def pin_dump
+	def pin_dump(level=0)
 		buf = []
+		max = self.keys.inject(0){|max,o| s = o.size; max = max > s ? max : s }
+		max = max > 30 ? max : 30
+		format = "%d %-#{max}s %s\n"
 		for k, v in self
 			if v.is_a?(Hash)
-				buf << v.pin_dump
+				buf << v.pin_dump(level+1)
 			else
-				buf << "%s %s\n" %[k,v]
+				buf << format %[level, k, v]
 			end
 		end
 		buf
@@ -159,6 +162,10 @@ class Java::ComPortalPcm::FList
 			when PIN_FLDT_DECIMAL
 				#hash[key] = val.nil? ? "" : java.math.BigDecimal.new(val.to_string)
 				hash[key] = val.nil? ? "" : val.to_string
+			when PIN_FLDT_BUF
+				buf = val.to_s
+				buf = FList.create_from_string(buf).to_str rescue buf
+				hash[key] = buf
   		else
   			hash[key] = val
   		end
