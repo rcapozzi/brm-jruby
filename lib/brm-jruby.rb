@@ -79,15 +79,50 @@ class Hash
 end
 
 class Java::ComPortalPcm::PortalContext
-	#  "ACT_FIND_VERIFY"
-	def xop(opcode,flags,flist)
+
+	# poid_str: A string version of a poid
+	def robj(poid_str)
+		ary = poid_str.split
+		poid_db, poid_type, poid_id, poid_rev = "0.0.0.1", nil, nil, nil
+		case ary.size 
+			when 4 then poid_db, poid_type, poid_id, poid_rev = ary
+			when 3 then poid_db, poid_type, poid_id = ary
+			when 2 then poid_type, poid_id = ary
+		end
+		
+		flist = xop("READ_OBJ", 0, {"PIN_FLD_POID"=>"#{poid_db} #{poid_type} #{poid_id}"})
+	end
+
+	# Execute an opcode
+	# opcode: The int or string of the opcode. For example "ACT_FIND_VERIFY"
+	# flags: An int for flags
+	# flist: A +Hash+, +String+, or +FList+
+	# NOTE: Returns the same type as supplied.
+	def xop(opcode, flags, flist)
 		if String === opcode
 			opcode = Java::ComPortalPcm::PortalOp.const_get(opcode.upcase)
 		end
-		if Hash === flist
-			flist = FList.from_hash(flist)
-		end
-		self.opcode(opcode,flags,flist)
+
+		in_flist = case flist
+			when Hash
+				FList.from_hash(flist)
+			when String
+				FList.create_from_string(flist)
+			else
+				flist
+			end
+
+		ret_flist = self.opcode(opcode, flags, in_flist)
+
+		return case flist
+			when Hash
+				ret_flist.to_hash
+			when String
+				ret_flist.to_s
+			else
+				ret_flist
+			end
+
 	end
 end
 
@@ -112,10 +147,17 @@ end
 
 class Java::ComPortalPcm::FList
 
+  def [](field)
+		fld = FList.field(field)
+		get(fld)
+  end
+
+  def []=(key,value)
+		xset(key, value)
+  end
+
   def xset(field,value)
-		fld = field
-		fld = com.portal.pcm.Field.from_name("Fld#{fld}")
-  	#fld = self.class.field(field)
+		fld = self.class.field(field)
   	case fld.get_pin_type
   	when /DECIMAL/
 					flist.set(field,java.math.BigDecimal.new(value))
@@ -123,8 +165,11 @@ class Java::ComPortalPcm::FList
 			value = java.util.Date.new(value.to_i * 1000)
 		when /INT|ENUM/
 			value = value.to_i
+		when /PIN_FLDT_POID/
+			value = Poid.from_string(value)
 		end
 		set(fld, value)
+		self
   end
   
   def dump
@@ -174,6 +219,11 @@ class Java::ComPortalPcm::FList
 	end
 
 	class <<	self
+
+		# Create from a doc/string
+		def from_str(doc)
+			create_from_string(doc)
+		end
 	
 		# Converts Camel case BigDeal to BIG_DEAL
 		def to_pinname(str)
@@ -189,7 +239,11 @@ class Java::ComPortalPcm::FList
 		# the singleton for given +field+
 		# where +field+ is a string or symbol
 		def field(field)
-			# fld = Kernel.const_get("PIN_Field")
+			fld = com.portal.pcm.Field.from_pin_name(field)
+			fld ||= com.portal.pcm.Field.from_name(field)
+			fld ||= com.portal.pcm.Field.from_name("Fld" + field)
+			return fld if fld
+
 			pin_name = to_pinname(field)
 			fld = Java::ComPortalPcm::Field
 			fld = fld.from_pin_name(pin_name)
@@ -249,6 +303,11 @@ class Java::ComPortalPcm::FList
     			key = v.keys.first
     			value = self.from_hash(v[key])
 					flist.set(field,value)
+				when PIN_FLDT_BUF
+					bbuf = Java::com.portal.pcm.ByteBuffer.new
+					#bbuf.set_bytes(v.sub(/\n\u0000.*?$/,"").to_java_bytes)
+					bbuf.set_bytes(v.to_java_bytes)
+					flist.set(field, bbuf)
 				else
     			raise "Unknown #{field} #{field.pintype} #{field.type_id} #{v.inspect}"
     		end
