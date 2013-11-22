@@ -82,15 +82,15 @@ class Java::ComPortalPcm::PortalContext
 
 	# poid_str: A string version of a poid
 	def robj(poid_str)
-		ary = poid_str.split
-		poid_db, poid_type, poid_id, poid_rev = "0.0.0.1", nil, nil, nil
-		case ary.size 
-			when 4 then poid_db, poid_type, poid_id, poid_rev = ary
-			when 3 then poid_db, poid_type, poid_id = ary
-			when 2 then poid_type, poid_id = ary
-		end
-		
 		flist = xop("READ_OBJ", 0, {"PIN_FLD_POID"=>"#{poid_db} #{poid_type} #{poid_id}"})
+	end
+
+	def rflds(flist)
+		flist = xop("READ_FLDS", 0, flist)
+	end
+	
+	def wflds(flist)
+		flist = xop("WRITE_FLDS", 0, flist)
 	end
 
 	# Execute an opcode
