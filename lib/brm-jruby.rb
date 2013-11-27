@@ -81,8 +81,8 @@ end
 class Java::ComPortalPcm::PortalContext
 
 	# poid_str: A string version of a poid
-	def robj(poid_str)
-		flist = xop("READ_OBJ", 0, {"PIN_FLD_POID"=>"#{poid_db} #{poid_type} #{poid_id}"})
+	def robj(poid)
+		flist = xop("READ_OBJ", 0, "PIN_FLD_POID" => poid)
 	end
 
 	def rflds(flist)
