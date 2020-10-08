@@ -132,7 +132,7 @@ end
 
 class Java::ComPortalPcm::Poid
 	def inspect
-		"#<%s:%d %s>" % [Poid, self.object_id, self.toString() ]
+		"#<%s:%d %s>" % ['Poid', self.object_id, self.toString() ]
 	end
 	class << self
 		# Convert db, type, id, rev into a poid.
@@ -226,11 +226,11 @@ class Java::ComPortalPcm::FList
 		hash
 	end
 
-	class <<	self
+	class << self
 
 		# Create from a doc/string
 		def from_str(doc)
-			create_from_string(doc)
+			create_from_string(doc.gsub(/^\s*/,''))
 		end
 
 		# Converts Camel case BigDeal to BIG_DEAL
@@ -328,16 +328,10 @@ class Java::ComPortalPcm::FList
 			@@dd_fields
 			rescue
 				flist = Java::ComPortalPcm::FList.new
-				#poid = Java::ComPortalPcm::Poid.from_string "1 /dd/objects 0"
-				# poid = com.portal.pcm.Poid.value_of()
-				poid = Java::ComPortalPcm::Poid.value_of("$DB /dd/objects 0",1)
+				poid = Java::ComPortalPcm::Poid.from_str("0.0.0.1 /dd/objects 1")
 				flist.set(Java::ComPortalPcmFields::FldPoid.getInst,poid)
 				out_flist = ctx.opcode(PCM_OP_SDK_GET_FLD_SPECS, flist)
 				hash = out_flist.to_hash
-
-				#hash = { "PIN_FLD_POID" => "0.0.0.1 /dd/objects 0 0" }
-				#flist = Java::ComPortalPcm::FList.from_hash(hash)
-				#hash = Java::ComPortalPcm::FList.to_hash(out_flist)
 
 				Struct.send(:remove_const, :PinFld) if Struct.const_defined?("PinFld")
 				pf = Struct.new("PinFld", :name, :num, :type, :status)

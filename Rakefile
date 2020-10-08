@@ -16,3 +16,5 @@ Hoe.spec 'brm-jruby' do
 end
 
 # vim: syntax=ruby
+
+# while inotifywait -e close_write test/test_brm-jruby.rb; do CLASSPATH=$PIN_HOME/jars ~/local/jruby-9.2.13.0/bin/jruby -Ilib -r brm-jruby test/test_brm-jruby.rb; done

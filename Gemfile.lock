@@ -15,6 +15,11 @@ GEM
       shellany (~> 0.0)
       thor (>= 0.18.1)
     guard-compat (1.2.1)
+    guard-jruby-minitest (0.1.9)
+      guard (>= 0.10.0)
+      guard-minitest (>= 2.3.0)
+      minitest
+      ruby_parser (>= 3.0)
     guard-minitest (2.4.6)
       guard-compat (~> 1.2)
       minitest (>= 3.0)
@@ -44,6 +49,9 @@ GEM
     rb-fsevent (0.10.4)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    ruby_parser (3.15.0)
+      sexp_processor (~> 4.9)
+    sexp_processor (4.15.1)
     shellany (0.0.1)
     spoon (0.0.6)
       ffi
@@ -55,7 +63,7 @@ PLATFORMS
 
 DEPENDENCIES
   guard (~> 2.16)
-  guard-minitest (~> 2.4)
+  guard-jruby-minitest (~> 0.1.9)
   guard-rake (~> 1.0)
   hoe (~> 3.22)
   minitest (~> 5.14)
