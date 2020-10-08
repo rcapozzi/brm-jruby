@@ -48,4 +48,10 @@ class BRMJRubyTest < Minitest::Test
     assert(flist['PIN_FLD_DESCR'] == v2)
   end
 
+  def test_flist_from_hash
+    flist = com.portal.pcm.FList.from_hash("Name" => "Bob", PIN_FLD_DESCR: "Description")
+    assert(flist['PIN_FLD_NAME'] == 'Bob')
+  end
+
+
 end

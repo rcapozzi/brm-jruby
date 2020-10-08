@@ -180,11 +180,6 @@ class Java::ComPortalPcm::FList
 	self
   end
 
-  def dump
-  	buf = []
-  	hash = self.to_hash
-  end
-
 	# to_str is the normal way of seeing things. +as_string+ is ackward.
 	def to_str
 		self.as_string
@@ -199,7 +194,7 @@ class Java::ComPortalPcm::FList
 			val = self.get(fld)
 			key = fld.name_string
 
-  		case fld.type_id
+			case fld.type_id
 			when PIN_FLDT_ARRAY
 				pairs = val.pairs
 				while (pairs.hasMoreElements)
@@ -219,9 +214,9 @@ class Java::ComPortalPcm::FList
 				buf = val.to_s
 				buf = FList.create_from_string(buf).to_str rescue buf
 				hash[key] = buf
-  		else
-  			hash[key] = val
-  		end
+			else
+				hash[key] = val
+			end
 		end
 		hash
 	end
@@ -284,8 +279,8 @@ class Java::ComPortalPcm::FList
 					raise "Bad load of #{k} => #{v}"
 				end
 
-    		case field.type_id
-    		when PIN_FLDT_POID
+				case field.type_id
+				when PIN_FLDT_POID
 					flist.set(field,Poid.from_string(v))
 				when PIN_FLDT_STR,
 						 PIN_FLDT_INT,
@@ -308,8 +303,8 @@ class Java::ComPortalPcm::FList
 					end
 					#flist.set(field,sa)
 				when PIN_FLDT_SUBSTRUCT
-    			key = v.keys.first
-    			value = self.from_hash(v[key])
+					key = v.keys.first
+					value = self.from_hash(v[key])
 					flist.set(field,value)
 				when PIN_FLDT_BUF
 					bbuf = Java::com.portal.pcm.ByteBuffer.new
@@ -317,8 +312,8 @@ class Java::ComPortalPcm::FList
 					bbuf.set_bytes(v.to_java_bytes)
 					flist.set(field, bbuf)
 				else
-    			raise "Unknown #{field} #{field.pintype} #{field.type_id} #{v.inspect}"
-    		end
+	    			raise "Unknown #{field} #{field.pintype} #{field.type_id} #{v.inspect}"
+	    		end
 			end
 			flist
 		end
@@ -339,7 +334,7 @@ class Java::ComPortalPcm::FList
 				hash["PIN_FLD_FIELD"].each do |i,href|
 					dd_fields[href["PIN_FLD_FIELD_NAME"]] = pf.new(href["PIN_FLD_FIELD_NAME"], href["PIN_FLD_FIELD_NUM"].to_i, href["PIN_FLD_FIELD_TYPE"].to_i, href["PIN_FLD_STATUS"].to_i)
 				end
-			  @@dd_fields = dd_fields
+				@@dd_fields = dd_fields
 		end
 
 	end
