@@ -11,8 +11,8 @@ require 'hoe'
 
 Hoe.spec 'brm-jruby' do
   developer('Raymond Capozzi', 'rcapozzi@gmail.com')
-  self.url = "http://rubyforge.org"
-  self.readme_file = "README"
+  # self.urls = "http://rubyforge.org"
+  # self.readme_file = "README.md"
 end
 
 # vim: syntax=ruby
