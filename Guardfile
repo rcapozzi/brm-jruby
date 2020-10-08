@@ -15,3 +15,7 @@ directories %w(lib test) \
 #  $ ln -s config/Guardfile .
 #
 # and, you'll have to watch "config/Guardfile" instead of "Guardfile"
+
+guard 'rake', :task => 'build' do
+  watch(%r{^my_file.rb})
+end
