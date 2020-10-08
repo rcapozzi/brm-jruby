@@ -156,28 +156,28 @@ end
 class Java::ComPortalPcm::FList
 
   def [](field)
-		fld = FList.field(field)
-		get(fld)
+	fld = FList.field(field)
+	get(fld)
   end
 
   def []=(key,value)
-		xset(key, value)
+	xset(key, value)
   end
 
   def xset(field,value)
-		fld = self.class.field(field)
+	fld = self.class.field(field)
   	case fld.get_pin_type
-  	when /DECIMAL/
-					flist.set(field,java.math.BigDecimal.new(value))
-		when /TSTAMP/
-			value = java.util.Date.new(value.to_i * 1000)
-		when /INT|ENUM/
-			value = value.to_i
-		when /PIN_FLDT_POID/
-			value = Poid.from_string(value)
-		end
-		set(fld, value)
-		self
+	when /DECIMAL/
+		value = java.math.BigDecimal.new(value)
+	when /TSTAMP/
+		value = java.util.Date.new(value.to_i * 1000)
+	when /INT|ENUM/
+		value = value.to_i
+	when /PIN_FLDT_POID/
+		value = String === value ? Poid.from_str(value) : value
+	end
+	set(fld, value)
+	self
   end
 
   def dump
