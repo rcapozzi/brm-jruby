@@ -128,6 +128,21 @@ class Java::ComPortalPcm::PortalContext
 			end
 
 	end
+
+	def self.xconnect
+		import 'java.io.StringReader'
+		data = File.read("Infranet.properties")
+		properties = Properties.new
+		properties.load(StringReader.new(data))
+		ctxp = com.portal.pcm.PortalContext.new(properties)
+		ctxp.connect(properties)
+		ctxp
+	rescue => e
+		puts "XXX Error test_connect_1"
+		puts e.inspect
+		nil
+	end
+
 end
 
 class Java::ComPortalPcm::Poid
