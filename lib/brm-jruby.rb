@@ -14,6 +14,13 @@ end
 require 'jruby'
 require 'pcm'
 require 'pcmext'
+require 'commons-logging-1.2'
+require 'httpclient-4.5.6'
+require 'httpcore-4.4.10'
+require 'oraclepki'
+require 'osdt_cert'
+require 'osdt_core'
+
 include Java
 
 java_import "java.util.Properties"
