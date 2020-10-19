@@ -12,6 +12,7 @@ VERSION = '0.0.1'
 end
 
 require 'jruby'
+$LOAD_PATH.unshift 'jars' unless $LOAD_PATH.include? 'jars'
 require 'pcm'
 require 'pcmext'
 include Java
@@ -31,7 +32,6 @@ begin
 	Kernel.const_get("PIN_FLDT_INT")
 rescue
 	PCM_OP_SDK_GET_FLD_SPECS = 575
-
 	PIN_FLDT_UNUSED     = 0
 	PIN_FLDT_INT        = 1
 	PIN_FLDT_UINT       = 2
@@ -52,7 +52,6 @@ rescue
 	PIN_FLDT_ERRBUF     = PIN_FLDT_ERR
 end
 
-#
 def define_constants
 	fields = com.portal.pcm.Field
 	fields.constants.each do |c|
@@ -170,35 +169,36 @@ end
 
 class Java::ComPortalPcm::FList
 
-  def [](field)
-	fld = FList.field(field)
-	get(fld)
-  end
-
-  def []=(key,value)
-	xset(key, value)
-  end
-
-  def xset(field,value)
-	fld = self.class.field(field)
-  	case fld.get_pin_type
-	when /DECIMAL/
-		value = java.math.BigDecimal.new(value)
-	when /TSTAMP/
-		value = java.util.Date.new(value.to_i * 1000)
-	when /INT|ENUM/
-		value = value.to_i
-	when /PIN_FLDT_POID/
-		value = String === value ? Poid.from_str(value) : value
+	def [](field)
+		fld = FList.field(field)
+		get(fld)
 	end
-	set(fld, value)
-	self
-  end
+
+	def []=(key,value)
+		xset(key, value)
+	end
+
+	def xset(field,value)
+		fld = self.class.field(field)
+		case fld.get_pin_type
+		when /DECIMAL/
+			value = java.math.BigDecimal.new(value)
+		when /TSTAMP/
+			value = java.util.Date.new(value.to_i * 1000)
+		when /INT|ENUM/
+			value = value.to_i
+		when /PIN_FLDT_POID/
+			value = String === value ? Poid.from_str(value) : value
+		end
+			set(fld, value)
+		self
+	end
 
 	# to_str is the normal way of seeing things. +as_string+ is ackward.
 	def to_str
 		self.as_string
 	end
+
 	def to_s
 		self.as_string
 	end
@@ -271,8 +271,8 @@ class Java::ComPortalPcm::FList
 				com.portal.pcm.Field.from_pin_name(name)
 			end
 
-			rescue
-				raise "Cannot load field named #{field}"
+		rescue
+			raise "Cannot load field named #{field}"
 		end
 
 		def sdk_field(field)
@@ -282,7 +282,6 @@ class Java::ComPortalPcm::FList
 				ary.first
 			end
 		end
-
 
 		# Create a new FList from the supplied Ruby hash.
 		# PIN_FLDT_TSTAMP | Time | Date | Ruby is seconds. Java is ms.
@@ -298,8 +297,8 @@ class Java::ComPortalPcm::FList
 				when PIN_FLDT_POID
 					flist.set(field,Poid.from_string(v))
 				when PIN_FLDT_STR,
-						 PIN_FLDT_INT,
-				     PIN_FLDT_ENUM
+					PIN_FLDT_INT,
+				    PIN_FLDT_ENUM
 					flist.set(field,v)
 				when PIN_FLDT_TSTAMP
 					d = java.util.Date.new(v.to_i * 1000)
@@ -336,20 +335,20 @@ class Java::ComPortalPcm::FList
 		# Loads fields from the database.
 		def sdk_fields(ctx)
 			@@dd_fields
-			rescue
-				flist = Java::ComPortalPcm::FList.new
-				poid = Java::ComPortalPcm::Poid.from_str("0.0.0.1 /dd/objects 1")
-				flist.set(Java::ComPortalPcmFields::FldPoid.getInst,poid)
-				out_flist = ctx.opcode(PCM_OP_SDK_GET_FLD_SPECS, flist)
-				hash = out_flist.to_hash
+		rescue
+			flist = Java::ComPortalPcm::FList.new
+			poid = Java::ComPortalPcm::Poid.from_str("0.0.0.1 /dd/objects 1")
+			flist.set(Java::ComPortalPcmFields::FldPoid.getInst,poid)
+			out_flist = ctx.opcode(PCM_OP_SDK_GET_FLD_SPECS, flist)
+			hash = out_flist.to_hash
 
-				Struct.send(:remove_const, :PinFld) if Struct.const_defined?("PinFld")
-				pf = Struct.new("PinFld", :name, :num, :type, :status)
-				dd_fields = {}
-				hash["PIN_FLD_FIELD"].each do |i,href|
-					dd_fields[href["PIN_FLD_FIELD_NAME"]] = pf.new(href["PIN_FLD_FIELD_NAME"], href["PIN_FLD_FIELD_NUM"].to_i, href["PIN_FLD_FIELD_TYPE"].to_i, href["PIN_FLD_STATUS"].to_i)
-				end
-				@@dd_fields = dd_fields
+			Struct.send(:remove_const, :PinFld) if Struct.const_defined?("PinFld")
+			pf = Struct.new("PinFld", :name, :num, :type, :status)
+			dd_fields = {}
+			hash["PIN_FLD_FIELD"].each do |i,href|
+				dd_fields[href["PIN_FLD_FIELD_NAME"]] = pf.new(href["PIN_FLD_FIELD_NAME"], href["PIN_FLD_FIELD_NUM"].to_i, href["PIN_FLD_FIELD_TYPE"].to_i, href["PIN_FLD_STATUS"].to_i)
+			end
+			@@dd_fields = dd_fields
 		end
 
 	end
@@ -366,12 +365,12 @@ if false # __FILE__ == $0
 	fld = com.portal.pcm.Field.from_name("FldName")
 
 	hash = {
-			"PIN_FLD_POID"         => "0.0.0.1 /service/pcm_client -1 0",
-			"PIN_FLD_LOGIN"        => "root.0.0.0.1",
-			"PIN_FLD_PASSWD_CLEAR" => "password",
-			"PIN_FLD_CM_PTRS"=>{0=>{"PIN_FLD_CM_PTR"=>"ip localhost 11960"}},
-			"PIN_FLD_TYPE"=>1
-		}
+		"PIN_FLD_POID"         => "0.0.0.1 /service/pcm_client -1 0",
+		"PIN_FLD_LOGIN"        => "root.0.0.0.1",
+		"PIN_FLD_PASSWD_CLEAR" => "password",
+		"PIN_FLD_CM_PTRS"      => {0=>{"PIN_FLD_CM_PTR"=>"ip localhost 11960"}},
+		"PIN_FLD_TYPE"         => 1
+	}
 	flist = FList.from_hash(hash)
 	ctx = com.portal.pcm.PortalContext.new(flist)
 

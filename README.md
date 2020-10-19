@@ -33,6 +33,10 @@ The following need to be on your classpath or JRuby's -I.
 
 ## DEVELOPERS:
 
+Run tests using the following:
+
+  $ PATH=~/local/jruby-9.2.13.0/bin:/etc/alternatives/java_sdk/bin:/usr/local/bin:/usr/bin:/bin jruby -S bundle exec guard -i
+
 After checking out the source, run:
 
   $ rake wtf

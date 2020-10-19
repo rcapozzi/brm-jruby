@@ -7,7 +7,7 @@ directories %w(lib test) \
 #   watch(%r{^my_file.rb})
 # end
 
-guard :minitest, include: ['lib'] do
+guard :minitest, include: ['lib', 'jars'] do
   # with Minitest::Unit
   watch(%r{^test/(.*)\/?test_(.*)\.rb$})
   watch(%r{^lib/(.*/)?([^/]+)\.rb$})     { |m| "test/#{m[1]}test_#{m[2]}.rb" }
