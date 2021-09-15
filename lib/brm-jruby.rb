@@ -8,7 +8,7 @@
 # then require the foo-flds.jar
 
 class BRMJRuby
-VERSION = '0.0.1'
+#VERSION = '0.0.1'
 end
 
 require 'jruby'
@@ -16,8 +16,8 @@ $LOAD_PATH.unshift 'jars' unless $LOAD_PATH.include? 'jars'
 require 'pcm'
 require 'pcmext'
 require 'commons-logging-1.2'
-require 'httpclient-4.5.6'
-require 'httpcore-4.4.10'
+require 'httpclient-4.5.11'
+require 'httpcore-4.4.13'
 require 'oraclepki'
 require 'osdt_cert'
 require 'osdt_core'
@@ -132,7 +132,6 @@ class Java::ComPortalPcm::PortalContext
 			else
 				ret_flist
 			end
-
 	end
 
 	def self.xconnect
@@ -147,6 +146,16 @@ class Java::ComPortalPcm::PortalContext
 		puts "XXX Error test_connect_1"
 		puts e.inspect
 		nil
+	end
+
+	def self.exec
+		ctxp = com.portal.pcm.PortalContext.new
+		ctxp.connect
+		rv = yield ctxp if block_given?
+		ctxp.close(true)
+		rv
+	ensure
+		ctxp.close(true) if ctxp and ctxp.is_context_valid?
 	end
 
 end
@@ -210,7 +219,7 @@ class Java::ComPortalPcm::FList
 		self.as_string
 	end
 
-	def to_hash
+	def to_hash(convert_buffers=false)
 		hash = {}
 		get_fields.each do |fld|
 			val = self.get(fld)
@@ -225,6 +234,9 @@ class Java::ComPortalPcm::FList
 					hash[key] ||= {}
 					hash[key][idx] = pair.value.to_hash
 				end
+			when PIN_FLDT_SUBSTRUCT
+				hash[key] ||= {}
+				hash[key][0] = val.to_hash
 			when PIN_FLDT_POID
 				hash[key] = val.to_s
 			when PIN_FLDT_TSTAMP
@@ -234,7 +246,7 @@ class Java::ComPortalPcm::FList
 				hash[key] = val.nil? ? "" : val.to_string
 			when PIN_FLDT_BUF
 				buf = val.to_s
-				buf = FList.create_from_string(buf).to_str rescue buf
+				buf = FList.create_from_string(buf).to_str rescue buf if convert_buffers == true
 				hash[key] = buf
 			else
 				hash[key] = val

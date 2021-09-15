@@ -60,6 +60,7 @@ GEM
 PLATFORMS
   java
   ruby
+  universal-java-1.8
 
 DEPENDENCIES
   ffi (~> 1.13)
@@ -69,5 +70,8 @@ DEPENDENCIES
   hoe (~> 3.22)
   minitest (~> 5.14)
 
+RUBY VERSION
+   ruby 2.5.8p0 (jruby 9.2.19.0)
+
 BUNDLED WITH
-   2.1.4
+   2.2.27

@@ -31,6 +31,14 @@ The following need to be on your classpath or JRuby's -I.
 
 * sudo gem install brm-jruby
 
+## rbenv:
+
+  rbenv install jruby-9.2.19.0
+  rbenv shell jruby-9.2.19.0
+  gem install bundler
+  bundler exec guard
+
+
 ## DEVELOPERS:
 
 Run tests using the following:
