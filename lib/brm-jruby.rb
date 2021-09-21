@@ -317,8 +317,8 @@ class Java::ComPortalPcm::FList
 					flist.set(field,Poid.from_string(v))
 				when PIN_FLDT_STR,
 					PIN_FLDT_INT,
-				    PIN_FLDT_ENUM
-					flist.set(field,v)
+			    PIN_FLDT_ENUM
+					v.nil? ? flist.set(field) : flist.set(field,v)
 				when PIN_FLDT_TSTAMP
 					d = java.util.Date.new(v.to_i * 1000)
 					flist.set(field,d)
