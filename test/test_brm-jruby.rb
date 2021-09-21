@@ -1,6 +1,14 @@
+%w( $PIN/HOME/jars
+lib).each do |path|
+  $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
+  puts "INFO: Added to path #{path}"
+end
+
 require 'guard-jruby-minitest'
 require 'minitest/autorun'
 require "brm-jruby"
+
+
 
 class BRMJRubyTest < Minitest::Test
   def test_flunk
@@ -52,6 +60,14 @@ class BRMJRubyTest < Minitest::Test
     flist = com.portal.pcm.FList.from_str("\n\t\n" + doc + "\n\n")
     assert(flist['PIN_FLD_NAME'] == v1)
     assert(flist['PIN_FLD_DESCR'] == v2)
+  end
+
+  def test_flist_buf
+    doc = <<~_flist_.strip
+    0       PIN_FLD_SELECTOR                     BUF [0] flag/size/offset 0x0 293 0 data:
+    _flist_
+    flist = FList.from_str(doc)
+    assert(flist.hash_key?('PIN_FLD_SELECTOR'))
   end
 
   def test_flist_from_hash

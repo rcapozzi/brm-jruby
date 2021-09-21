@@ -243,7 +243,7 @@ class Java::ComPortalPcm::FList
 				hash[key] = (val.getTime() / 1000)
 			when PIN_FLDT_DECIMAL
 				#hash[key] = val.nil? ? "" : java.math.BigDecimal.new(val.to_string)
-				hash[key] = val.nil? ? "" : val.to_string
+				hash[key] = val.nil? ? nil : val.to_string
 			when PIN_FLDT_BUF
 				buf = val.to_s
 				buf = FList.create_from_string(buf).to_str rescue buf if convert_buffers == true
@@ -323,8 +323,12 @@ class Java::ComPortalPcm::FList
 					d = java.util.Date.new(v.to_i * 1000)
 					flist.set(field,d)
 				when PIN_FLDT_DECIMAL
-					v = "0" if v.is_a?(String) and v.size == 0
-					flist.set(field,java.math.BigDecimal.new(v))
+					if v.nil?
+						flist.set(field)
+					else
+						v = "0" if v.is_a?(String) and v.size == 0
+						flist.set(field,java.math.BigDecimal.new(v))
+					end
 				when PIN_FLDT_ARRAY
 					# Two ways. Use SA and set OR setElement
 					# sa = SparseArray.new
